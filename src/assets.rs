@@ -12,7 +12,7 @@ pub struct Assets {
 }
 
 impl Assets {
-    fn new(ctx: &mut Context) -> GameResult<Assets> {
+    pub fn new(ctx: &mut Context) -> GameResult<Assets> {
         let player_image = graphics::Image::new(ctx, "/player.png")?;
         let fruit_image = graphics::Image::new(ctx, "/fruit.png")?;
 

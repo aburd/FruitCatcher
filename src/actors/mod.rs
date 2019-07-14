@@ -1,3 +1,6 @@
+type Point2 = nalgebra::Point2<f32>;
+type Vector2 = nalgebra::Vector2<f32>;
+
 /// *********************************************************************
 /// Now we define our Actor's.
 /// An Actor is anything in the game world.
@@ -18,4 +21,44 @@ pub struct Actor {
   pub pos: Point2,
   pub velocity: Vector2,
   pub bbox_size: f32,
+}
+
+pub mod player {
+  use ggez::nalgebra as na;
+  use super::{Actor, ActorType};
+  type Point2 = nalgebra::Point2<f32>;
+
+  pub fn create_player() -> Actor {
+    Actor {
+      tag: ActorType::Player,
+      pos: Point2::origin(),
+      velocity: na::zero(),
+      bbox_size: 2.0,
+    }
+  }
+}
+
+pub mod fruit {
+  use rand;
+  use ggez::nalgebra as na;
+  use super::{Actor, ActorType};
+
+  type Point2 = nalgebra::Point2<f32>;
+
+  pub fn create_fruits(n: u32, sw: f32, sh: f32) -> Vec<Actor> {
+    (0..=n).map(|_| create_fruit(sw, sh)).collect()
+  }
+
+  fn create_fruit(sw: f32, sh: f32) -> Actor {
+    let x = rand::random::<f32>() + sw / 2.0;
+    let y = sh + 1.0;
+    let r_angle = rand::random::<f32>() * 2.0;
+
+    Actor {
+      tag: ActorType::Fruit,
+      pos: Point2::new(x, y),
+      velocity: na::zero(),
+      bbox_size: 2.0,
+    }
+  }
 }

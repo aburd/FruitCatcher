@@ -39,20 +39,31 @@ impl MainState {
 
         let assets = Assets::new(ctx)?;
 
-        let player = player::create_player();
-        let rocks = rock::create_rocks(1, player.pos, 100.0, 250.0);
+        let screen_width = ctx.conf.window_mode.width;
+        let screen_height = ctx.conf.window_mode.height;
+
+        let player = actors::player::create_player();
+        let fruits = actors::fruit::create_fruits(1, screen_width, screen_height);
 
         Ok(MainState {
-            player: Actor,
-            fruits: Vec<Actor>,
-            level: i32,
-            score: i32,
-            assets: Assets,
+            player,
+            fruits,
+            level: 0,
+            score: 0,
+            assets,
             screen_width: ctx.conf.window_mode.width,
             screen_height: ctx.conf.window_mode.height,
-            input: InputState,
+            input: InputState::default(),
         })
     }
+}
+
+fn print_instructions() {
+    println!("");
+    println!("Eat the apples!");
+    println!("Press L/R to move the eater");
+    println!("");
+    println!("Esc to finish game");
 }
 
 impl EventHandler for MainState {
