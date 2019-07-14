@@ -1,0 +1,12 @@
+[package]
+name = "falling_boys"
+version = "0.1.0"
+authors = ["aburd <burdick.aaron@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+ggez = "0.5.0-rc.0"
+rand = "0.6"
+cgmath = { version = "0.17", features = ["mint"]}
+nalgebra = {version = "0.18", features = ["mint"] }
+mint = "0.5"
