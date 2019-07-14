@@ -30,7 +30,7 @@ impl Assets {
         })
     }
 
-    fn actor_image(&mut self, actor: &Actor) -> &mut graphics::Image {
+    pub fn actor_image(&mut self, actor: &Actor) -> &mut graphics::Image {
         match actor.tag {
             ActorType::Player => &mut self.player_image,
             ActorType::Fruit => &mut self.fruit_image,

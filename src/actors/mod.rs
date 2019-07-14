@@ -1,6 +1,3 @@
-type Point2 = nalgebra::Point2<f32>;
-type Vector2 = nalgebra::Vector2<f32>;
-
 /// *********************************************************************
 /// Now we define our Actor's.
 /// An Actor is anything in the game world.
@@ -9,6 +6,11 @@ type Vector2 = nalgebra::Vector2<f32>;
 /// real ECS, but for this it's enough to say that all our game objects
 /// contain pretty much the same data.
 /// **********************************************************************
+use crate::controls::InputState;
+
+type Point2 = nalgebra::Point2<f32>;
+type Vector2 = nalgebra::Vector2<f32>;
+
 #[derive(Debug)]
 pub enum ActorType {
   Player,
@@ -24,9 +26,10 @@ pub struct Actor {
 }
 
 pub mod player {
-  use super::{Actor, ActorType};
+  use super::{Actor, ActorType, InputState};
   use ggez::nalgebra as na;
   type Point2 = nalgebra::Point2<f32>;
+  type Vector2 = nalgebra::Vector2<f32>;
 
   pub fn create_player() -> Actor {
     Actor {
@@ -35,6 +38,13 @@ pub mod player {
       velocity: na::zero(),
       bbox_size: 2.0,
     }
+  }
+
+  const PLAYER_SPEED: f32 = 2.0;
+
+  pub fn player_handle_input(actor: &mut Actor, input: &InputState, dt: f32) {
+    let v = Vector2::new(PLAYER_SPEED * input.xaxis, 0.0);
+    actor.velocity += v;
   }
 }
 

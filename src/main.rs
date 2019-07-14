@@ -12,6 +12,9 @@ use ggez::{Context, ContextBuilder, GameResult};
 use std::env;
 use std::path;
 
+type Point2 = nalgebra::Point2<f32>;
+type Vector2 = nalgebra::Vector2<f32>;
+
 mod assets;
 use assets::Assets;
 mod controls;
@@ -66,12 +69,102 @@ fn print_instructions() {
     println!("Esc to finish game");
 }
 
+/// Translates the world coordinate system, which
+/// has Y pointing up and the origin at the center,
+/// to the screen coordinate system, which has Y
+/// pointing downward and the origin at the top-left,
+fn world_to_screen_coords(screen_width: f32, screen_height: f32, point: Point2) -> Point2 {
+    let x = point.x + screen_width / 2.0;
+    let y = screen_height - (point.y + screen_height / 2.0);
+    Point2::new(x, y)
+}
+
+/// Translates the world coordinate system to
+/// coordinates suitable for the audio system.
+fn world_to_audio_coords(screen_width: f32, screen_height: f32, point: Point2) -> [f32; 3] {
+    let x = point.x * 2.0 / screen_width;
+    let y = point.y * 2.0 / screen_height;
+    let z = 0.0;
+    [x, y, z]
+}
+
+fn draw_actor(
+    assets: &mut Assets,
+    ctx: &mut Context,
+    actor: &Actor,
+    world_coords: (f32, f32),
+) -> GameResult {
+    let (screen_w, screen_h) = world_coords;
+    let pos = world_to_screen_coords(screen_w, screen_h, actor.pos);
+    let image = assets.actor_image(actor);
+    let drawparams = graphics::DrawParam::new()
+        .dest(pos)
+        // .rotation(actor.facing as f32)
+        .offset(Point2::new(0.5, 0.5));
+    graphics::draw(ctx, image, drawparams)
+}
+
+const MAX_PHYSICS_VEL: f32 = 250.0;
+
+pub fn update_actor_position(actor: &mut Actor, dt: f32) {
+    // Clamp the velocity to the max efficiently
+    let norm_sq = actor.velocity.norm_squared();
+    if norm_sq > MAX_PHYSICS_VEL.powi(2) {
+        actor.velocity = actor.velocity / norm_sq.sqrt() * MAX_PHYSICS_VEL;
+    }
+    let dv = actor.velocity * (dt);
+    actor.pos += dv;
+}
+
 impl EventHandler for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
+        const DESIRED_FPS: u32 = 60;
+
+        while timer::check_update_time(ctx, DESIRED_FPS) {
+            let seconds = 1.0 / (DESIRED_FPS as f32);
+            actors::player::player_handle_input(&mut self.player, &self.input, seconds);
+            update_actor_position(&mut self.player, seconds);
+        }
+
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
+        // Clear the screen...
+        graphics::clear(ctx, graphics::BLACK);
+
+        // Draw actors
+        {
+            let assets = &mut self.assets;
+            let coords = (self.screen_width, self.screen_height);
+
+            let p = &self.player;
+            draw_actor(assets, ctx, p, coords).unwrap();
+
+            for f in &self.fruits {
+                draw_actor(assets, ctx, f, coords).unwrap();
+            }
+        }
+
+        // Draw the UI
+        // And draw the GUI elements in the right places.
+        // let level_dest = Point2::new(10.0, 10.0);
+        let score_dest = Point2::new(200.0, 10.0);
+        let debug_dest = Point2::new(10.0, 42.0);
+
+        // let level_str = format!("Level: {}", self.level);
+        let score_str = format!("Score: {}", self.score);
+        let debug_str = format!("Debug: {:?}", self.player.velocity);
+        // let level_display = graphics::Text::new(level_str);
+        let score_display = graphics::Text::new(score_str);
+        let debug_display = graphics::Text::new(debug_str);
+        // graphics::draw(ctx, &level_display, (level_dest, 0.0, graphics::WHITE))?;
+        graphics::draw(ctx, &score_display, (score_dest, 0.0, graphics::WHITE))?;
+        graphics::draw(ctx, &debug_display, (debug_dest, 0.0, graphics::WHITE))?;
+
+        // Then we flip the screen...
+        graphics::present(ctx)?;
+
         Ok(())
     }
 
