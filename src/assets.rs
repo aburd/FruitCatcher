@@ -6,10 +6,7 @@ use crate::actors::{Actor, ActorType};
 
 pub struct Assets {
     player_image: graphics::Image,
-    shot_image: graphics::Image,
-    rock_image: graphics::Image,
-    font: graphics::Font,
-    // Todo: add a music track to show non-spatial audio?
+    fruit_image: graphics::Image,
     shot_sound: audio::SpatialSource,
     hit_sound: audio::SpatialSource,
 }
@@ -27,9 +24,7 @@ impl Assets {
 
         Ok(Assets {
             player_image,
-            shot_image,
-            rock_image,
-            font,
+            fruit_image,
             shot_sound,
             hit_sound,
         })
