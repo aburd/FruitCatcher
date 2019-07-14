@@ -24,8 +24,8 @@ pub struct Actor {
 }
 
 pub mod player {
-  use ggez::nalgebra as na;
   use super::{Actor, ActorType};
+  use ggez::nalgebra as na;
   type Point2 = nalgebra::Point2<f32>;
 
   pub fn create_player() -> Actor {
@@ -39,10 +39,10 @@ pub mod player {
 }
 
 pub mod fruit {
-  use rand;
-  use ggez::nalgebra as na;
-  use super::{Actor, ActorType};
 
+  use super::{Actor, ActorType};
+  use ggez::nalgebra as na;
+  use rand;
   type Point2 = nalgebra::Point2<f32>;
 
   pub fn create_fruits(n: u32, sw: f32, sh: f32) -> Vec<Actor> {
@@ -52,7 +52,6 @@ pub mod fruit {
   fn create_fruit(sw: f32, sh: f32) -> Actor {
     let x = rand::random::<f32>() + sw / 2.0;
     let y = sh + 1.0;
-    let r_angle = rand::random::<f32>() * 2.0;
 
     Actor {
       tag: ActorType::Fruit,

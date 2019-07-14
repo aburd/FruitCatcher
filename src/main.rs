@@ -17,7 +17,7 @@ use assets::Assets;
 mod controls;
 use controls::InputState;
 mod actors;
-use actors::{Actor};
+use actors::Actor;
 
 
 struct MainState {
@@ -82,42 +82,25 @@ impl EventHandler for MainState {
         _keymod: KeyMods,
         _repeat: bool,
     ) {
-        // match keycode {
-        //     KeyCode::Up => {
-        //         self.input.yaxis = 1.0;
-        //     }
-        //     KeyCode::Left => {
-        //         self.input.xaxis = -1.0;
-        //     }
-        //     KeyCode::Right => {
-        //         self.input.xaxis = 1.0;
-        //     }
-        //     KeyCode::Space => {
-        //         self.input.fire = true;
-        //     }
-        //     KeyCode::P => {
-        //         let img = graphics::screenshot(ctx).expect("Could not take screenshot");
-        //         img.encode(ctx, graphics::ImageFormat::Png, "/screenshot.png")
-        //             .expect("Could not save screenshot");
-        //     }
-        //     KeyCode::Escape => ggez::quit(ctx),
-        //     _ => (), // Do nothing
-        // }
+        match keycode {
+            KeyCode::Left => {
+                self.input.xaxis = -1.0;
+            }
+            KeyCode::Right => {
+                self.input.xaxis = 1.0;
+            }
+            KeyCode::Escape => ggez::quit(ctx),
+            _ => (), // Do nothing
+        }
     }
 
     fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
-        // match keycode {
-        //     KeyCode::Up => {
-        //         self.input.yaxis = 0.0;
-        //     }
-        //     KeyCode::Left | KeyCode::Right => {
-        //         self.input.xaxis = 0.0;
-        //     }
-        //     KeyCode::Space => {
-        //         self.input.fire = false;
-        //     }
-        //     _ => (), // Do nothing
-        // }
+        match keycode {
+            KeyCode::Left | KeyCode::Right => {
+                self.input.xaxis = 0.0;
+            }
+            _ => (), // Do nothing
+        }
     }
 }
 
