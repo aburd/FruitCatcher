@@ -46,7 +46,7 @@ impl MainState {
         let screen_height = ctx.conf.window_mode.height;
 
         let player = actors::player::create_player();
-        let fruits = actors::fruit::create_fruits(1, screen_width, screen_height);
+        let fruits = actors::fruit::create_fruits(2, screen_width, screen_height);
 
         Ok(MainState {
             player,
@@ -100,6 +100,7 @@ fn draw_actor(
     let drawparams = graphics::DrawParam::new()
         .dest(pos)
         // .rotation(actor.facing as f32)
+        .scale(Vector2::new(2.0, 2.0))
         .offset(Point2::new(0.5, 0.5));
     graphics::draw(ctx, image, drawparams)
 }
@@ -124,6 +125,9 @@ impl EventHandler for MainState {
             let seconds = 1.0 / (DESIRED_FPS as f32);
             actors::player::player_handle_input(&mut self.player, &self.input, seconds);
             update_actor_position(&mut self.player, seconds);
+            for f in &mut self.fruits {
+                update_actor_position(f, seconds);
+            }
         }
 
         Ok(())
@@ -149,18 +153,22 @@ impl EventHandler for MainState {
         // Draw the UI
         // And draw the GUI elements in the right places.
         // let level_dest = Point2::new(10.0, 10.0);
-        let score_dest = Point2::new(200.0, 10.0);
-        let debug_dest = Point2::new(10.0, 42.0);
+        let score_dest = Point2::new(10.0, 10.0);
+        let debug_dest = Point2::new(10.0, 32.0);
+        let debug2_dest = Point2::new(10.0, 54.0);
 
         // let level_str = format!("Level: {}", self.level);
         let score_str = format!("Score: {}", self.score);
-        let debug_str = format!("Debug: {:?}", self.player.velocity);
+        let debug_str = format!("Player Velocity: {:?}", self.player.velocity);
+        let debug2_str = format!("Fruits: {:?}", self.fruits);
         // let level_display = graphics::Text::new(level_str);
         let score_display = graphics::Text::new(score_str);
         let debug_display = graphics::Text::new(debug_str);
+        let debug2_display = graphics::Text::new(debug2_str);
         // graphics::draw(ctx, &level_display, (level_dest, 0.0, graphics::WHITE))?;
         graphics::draw(ctx, &score_display, (score_dest, 0.0, graphics::WHITE))?;
         graphics::draw(ctx, &debug_display, (debug_dest, 0.0, graphics::WHITE))?;
+        graphics::draw(ctx, &debug2_display, (debug2_dest, 0.0, graphics::WHITE))?;
 
         // Then we flip the screen...
         graphics::present(ctx)?;
