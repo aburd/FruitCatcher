@@ -51,9 +51,7 @@ pub mod player {
 }
 
 pub mod fruit {
-
   use super::{Actor, ActorType};
-  use ggez::nalgebra as na;
   use rand;
   type Point2 = nalgebra::Point2<f32>;
   type Vector2 = nalgebra::Vector2<f32>;

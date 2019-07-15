@@ -26,6 +26,7 @@ use actors::Actor;
 struct MainState {
     player: Actor,
     fruits: Vec<Actor>,
+    fruit_drop_wait: std::time::Duration,
     level: i32,
     score: i32,
     assets: Assets,
@@ -51,7 +52,8 @@ impl MainState {
         Ok(MainState {
             player,
             fruits,
-            level: 0,
+            fruit_drop_wait: std::time::Duration::new(3, 0),
+            level: 1,
             score: 0,
             assets,
             screen_width: ctx.conf.window_mode.width,
@@ -154,6 +156,15 @@ impl EventHandler for MainState {
             }
             self.handle_collisions();
             self.remove_dead();
+        }
+
+        // println!("{:?}", timer::delta(ctx));
+        self.fruit_drop_wait -= timer::delta(ctx);
+        println!("{:?}", self.fruit_drop_wait);
+        if self.fruit_drop_wait.as_secs() <= 0 {
+            let fruit = actors::fruit::create_fruits(1, self.screen_width, self.screen_height);
+            self.fruits.extend(fruit);
+            self.fruit_drop_wait = std::time::Duration::new(3, 0);
         }
 
         Ok(())
