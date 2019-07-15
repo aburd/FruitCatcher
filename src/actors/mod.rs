@@ -23,6 +23,7 @@ pub struct Actor {
   pub pos: Point2,
   pub velocity: Vector2,
   pub bbox_size: f32,
+  pub life: f32,
 }
 
 pub mod player {
@@ -36,7 +37,8 @@ pub mod player {
       tag: ActorType::Player,
       pos: Point2::origin(),
       velocity: na::zero(),
-      bbox_size: 2.0,
+      bbox_size: 50.0,
+      life: 1.0,
     }
   }
 
@@ -69,6 +71,7 @@ pub mod fruit {
       pos: Point2::new(x, y),
       velocity: Vector2::new(0.0, -50.0),
       bbox_size: 2.0,
+      life: 1.0,
     }
   }
 }

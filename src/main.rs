@@ -59,6 +59,20 @@ impl MainState {
             input: InputState::default(),
         })
     }
+
+    fn handle_collisions(&mut self) {
+        for fruit in &mut self.fruits {
+            let pdistance = fruit.pos - self.player.pos;
+            if pdistance.norm() < (self.player.bbox_size + fruit.bbox_size) {
+                fruit.life = 0.0;
+                self.score += 1;
+            }
+        }
+    }
+
+    fn remove_dead(&mut self) {
+        self.fruits.retain(|f| f.life > 0.0);
+    }
 }
 
 fn print_instructions() {
@@ -96,6 +110,16 @@ fn draw_actor(
 ) -> GameResult {
     let (screen_w, screen_h) = world_coords;
     let pos = world_to_screen_coords(screen_w, screen_h, actor.pos);
+    // Draw debug square
+    let rect = graphics::Rect::new(
+        pos.x - (actor.bbox_size / 2.0),
+        pos.y - (actor.bbox_size / 2.0),
+        actor.bbox_size,
+        actor.bbox_size,
+    );
+    let r1 = graphics::Mesh::new_rectangle(ctx, graphics::DrawMode::fill(), rect, graphics::WHITE)?;
+    graphics::draw(ctx, &r1, graphics::DrawParam::default())?;
+    // Draw character
     let image = assets.actor_image(actor);
     let drawparams = graphics::DrawParam::new()
         .dest(pos)
@@ -128,6 +152,8 @@ impl EventHandler for MainState {
             for f in &mut self.fruits {
                 update_actor_position(f, seconds);
             }
+            self.handle_collisions();
+            self.remove_dead();
         }
 
         Ok(())
@@ -155,20 +181,16 @@ impl EventHandler for MainState {
         // let level_dest = Point2::new(10.0, 10.0);
         let score_dest = Point2::new(10.0, 10.0);
         let debug_dest = Point2::new(10.0, 32.0);
-        let debug2_dest = Point2::new(10.0, 54.0);
 
         // let level_str = format!("Level: {}", self.level);
         let score_str = format!("Score: {}", self.score);
         let debug_str = format!("Player Velocity: {:?}", self.player.velocity);
-        let debug2_str = format!("Fruits: {:?}", self.fruits);
         // let level_display = graphics::Text::new(level_str);
         let score_display = graphics::Text::new(score_str);
         let debug_display = graphics::Text::new(debug_str);
-        let debug2_display = graphics::Text::new(debug2_str);
         // graphics::draw(ctx, &level_display, (level_dest, 0.0, graphics::WHITE))?;
         graphics::draw(ctx, &score_display, (score_dest, 0.0, graphics::WHITE))?;
         graphics::draw(ctx, &debug_display, (debug_dest, 0.0, graphics::WHITE))?;
-        graphics::draw(ctx, &debug2_display, (debug2_dest, 0.0, graphics::WHITE))?;
 
         // Then we flip the screen...
         graphics::present(ctx)?;
@@ -185,9 +207,15 @@ impl EventHandler for MainState {
     ) {
         match keycode {
             KeyCode::Left => {
+                if self.player.velocity[0] > 0.0 {
+                    self.player.velocity[0] = 0.0;
+                }
                 self.input.xaxis = -1.0;
             }
             KeyCode::Right => {
+                if self.player.velocity[0] < 0.0 {
+                    self.player.velocity[0] = 0.0;
+                }
                 self.input.xaxis = 1.0;
             }
             KeyCode::Escape => ggez::quit(ctx),
