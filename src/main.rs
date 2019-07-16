@@ -21,6 +21,8 @@ mod controls;
 use controls::InputState;
 mod actors;
 use actors::Actor;
+mod util;
+use util::{world_to_audio_coords, world_to_screen_coords};
 
 
 struct MainState {
@@ -46,8 +48,8 @@ impl MainState {
         let screen_width = ctx.conf.window_mode.width;
         let screen_height = ctx.conf.window_mode.height;
 
-        let player = actors::player::create_player();
-        let fruits = actors::fruit::create_fruits(2, screen_width, screen_height);
+        let player = actors::player::create_player(screen_width, screen_height);
+        let fruits = actors::fruit::create_fruits(1, screen_width, screen_height);
 
         Ok(MainState {
             player,
@@ -73,7 +75,16 @@ impl MainState {
     }
 
     fn remove_dead(&mut self) {
+        self.handle_fruit_offscreen();
         self.fruits.retain(|f| f.life > 0.0);
+    }
+
+    fn handle_fruit_offscreen(&mut self) {
+        for fruit in &mut self.fruits {
+            if fruit.pos.y >= self.screen_height {
+                fruit.life = 0.0;
+            }
+        }
     }
 }
 
@@ -85,25 +96,6 @@ fn print_instructions() {
     println!("Esc to finish game");
 }
 
-/// Translates the world coordinate system, which
-/// has Y pointing up and the origin at the center,
-/// to the screen coordinate system, which has Y
-/// pointing downward and the origin at the top-left,
-fn world_to_screen_coords(screen_width: f32, screen_height: f32, point: Point2) -> Point2 {
-    let x = point.x + screen_width / 2.0;
-    let y = screen_height - (point.y + screen_height / 2.0);
-    Point2::new(x, y)
-}
-
-/// Translates the world coordinate system to
-/// coordinates suitable for the audio system.
-fn world_to_audio_coords(screen_width: f32, screen_height: f32, point: Point2) -> [f32; 3] {
-    let x = point.x * 2.0 / screen_width;
-    let y = point.y * 2.0 / screen_height;
-    let z = 0.0;
-    [x, y, z]
-}
-
 fn draw_actor(
     assets: &mut Assets,
     ctx: &mut Context,
@@ -111,7 +103,8 @@ fn draw_actor(
     world_coords: (f32, f32),
 ) -> GameResult {
     let (screen_w, screen_h) = world_coords;
-    let pos = world_to_screen_coords(screen_w, screen_h, actor.pos);
+    // let pos = world_to_screen_coords(screen_w, screen_h, actor.pos);
+    let pos = actor.pos;
     // Draw debug square
     let rect = graphics::Rect::new(
         pos.x - (actor.bbox_size / 2.0),
@@ -126,7 +119,7 @@ fn draw_actor(
     let drawparams = graphics::DrawParam::new()
         .dest(pos)
         // .rotation(actor.facing as f32)
-        .scale(Vector2::new(2.0, 2.0))
+        .scale(Vector2::new(4.0, 4.0))
         .offset(Point2::new(0.5, 0.5));
     graphics::draw(ctx, image, drawparams)
 }
@@ -158,9 +151,7 @@ impl EventHandler for MainState {
             self.remove_dead();
         }
 
-        // println!("{:?}", timer::delta(ctx));
         self.fruit_drop_wait -= timer::delta(ctx);
-        println!("{:?}", self.fruit_drop_wait);
         if self.fruit_drop_wait.as_secs() <= 0 {
             let fruit = actors::fruit::create_fruits(1, self.screen_width, self.screen_height);
             self.fruits.extend(fruit);
@@ -195,7 +186,9 @@ impl EventHandler for MainState {
 
         // let level_str = format!("Level: {}", self.level);
         let score_str = format!("Score: {}", self.score);
-        let debug_str = format!("Player Velocity: {:?}", self.player.velocity);
+        // let debug_str = format!("Player Velocity: {:?}", self.player.velocity);
+        let debug_str = format!("Player Pos: {:?}", self.player.pos);
+        // let debug_str = format!("Fruits: {:?}", self.fruits);
         // let level_display = graphics::Text::new(level_str);
         let score_display = graphics::Text::new(score_str);
         let debug_display = graphics::Text::new(debug_str);

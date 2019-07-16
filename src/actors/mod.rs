@@ -32,12 +32,15 @@ pub mod player {
   type Point2 = nalgebra::Point2<f32>;
   type Vector2 = nalgebra::Vector2<f32>;
 
-  pub fn create_player() -> Actor {
+  pub fn create_player(sw: f32, sh: f32) -> Actor {
+    let bbox_size = 60.0;
+    let padding_bottom = 5.0;
+    let init_pos = Point2::new(sw / 2.0, sh - (bbox_size / 2.0) - padding_bottom);
     Actor {
       tag: ActorType::Player,
-      pos: Point2::origin(),
+      pos: init_pos,
       velocity: na::zero(),
-      bbox_size: 50.0,
+      bbox_size,
       life: 1.0,
     }
   }
@@ -52,22 +55,23 @@ pub mod player {
 
 pub mod fruit {
   use super::{Actor, ActorType};
-  use rand;
+
   type Point2 = nalgebra::Point2<f32>;
   type Vector2 = nalgebra::Vector2<f32>;
 
   pub fn create_fruits(n: u32, sw: f32, sh: f32) -> Vec<Actor> {
-    (0..=n).map(|_| create_fruit(sw, sh)).collect()
+    (0..n).map(|_| create_fruit(sw, sh)).collect()
   }
 
   fn create_fruit(sw: f32, sh: f32) -> Actor {
-    let x = rand::random::<f32>() * sw / 2.0;
-    let y = sh / 2.0;
+    let x = rand::random::<f32>() * sw;
+    let pos = Point2::new(x, 0.0);
+    let falling_speed = 50.0;
 
     Actor {
       tag: ActorType::Fruit,
-      pos: Point2::new(x, y),
-      velocity: Vector2::new(0.0, -50.0),
+      pos,
+      velocity: Vector2::new(0.0, falling_speed),
       bbox_size: 2.0,
       life: 1.0,
     }
