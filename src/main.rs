@@ -54,7 +54,7 @@ impl MainState {
         Ok(MainState {
             player,
             fruits,
-            fruit_drop_wait: std::time::Duration::new(3, 0),
+            fruit_drop_wait: std::time::Duration::new(6, 0),
             level: 1,
             score: 0,
             assets,
@@ -124,7 +124,7 @@ fn draw_actor(
     graphics::draw(ctx, image, drawparams)
 }
 
-const MAX_PHYSICS_VEL: f32 = 250.0;
+const MAX_PHYSICS_VEL: f32 = 400.0;
 
 pub fn update_actor_position(actor: &mut Actor, dt: f32) {
     // Clamp the velocity to the max efficiently
@@ -210,18 +210,8 @@ impl EventHandler for MainState {
         _repeat: bool,
     ) {
         match keycode {
-            KeyCode::Left => {
-                if self.player.velocity[0] > 0.0 {
-                    self.player.velocity[0] = 0.0;
-                }
-                self.input.xaxis = -1.0;
-            }
-            KeyCode::Right => {
-                if self.player.velocity[0] < 0.0 {
-                    self.player.velocity[0] = 0.0;
-                }
-                self.input.xaxis = 1.0;
-            }
+            KeyCode::Left => controls::handle_left(&mut self.player, &mut self.input),
+            KeyCode::Right => controls::handle_right(&mut self.player, &mut self.input),
             KeyCode::Escape => ggez::quit(ctx),
             _ => (), // Do nothing
         }

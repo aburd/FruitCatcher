@@ -24,6 +24,7 @@ pub struct Actor {
   pub velocity: Vector2,
   pub bbox_size: f32,
   pub life: f32,
+  pub speed: f32,
 }
 
 pub mod player {
@@ -42,6 +43,7 @@ pub mod player {
       velocity: na::zero(),
       bbox_size,
       life: 1.0,
+      speed: 10.0,
     }
   }
 
@@ -66,7 +68,7 @@ pub mod fruit {
   fn create_fruit(sw: f32, sh: f32) -> Actor {
     let x = rand::random::<f32>() * sw;
     let pos = Point2::new(x, 0.0);
-    let falling_speed = 50.0;
+    let falling_speed = 100.0;
 
     Actor {
       tag: ActorType::Fruit,
@@ -74,6 +76,7 @@ pub mod fruit {
       velocity: Vector2::new(0.0, falling_speed),
       bbox_size: 2.0,
       life: 1.0,
+      speed: falling_speed,
     }
   }
 }
